@@ -1,0 +1,449 @@
+// Una buena noticia para ti · Felicitación de Navidad · Parroquia de Santa Casilda
+// Quien envía escribe una carta; la carta viaja sobre Umbría y el valle de Rieti hasta Greccio y se comparte por WhatsApp.
+// Quien recibe abre el enlace, rompe el lacre y escucha su buena noticia.
+(function () {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+
+  // ---------- contenido ----------
+  const MENSAJES = [
+    { id: 1, texto: 'Esta Navidad, haz en tu casa un pequeño Greccio: deja sitio al Niño de Belén.', voz: null },
+    { id: 2, texto: '«El Señor te dé la paz.» (San Francisco, Testamento)', voz: null },
+    { id: 3, texto: '«Donde hay pobreza con alegría, no hay codicia ni avaricia.» (San Francisco, Admoniciones)', voz: null },
+    { id: 4, texto: 'El Hijo de Dios se hizo pequeño y pobre para que nadie tenga miedo de acercarse.', voz: null }
+  ];
+  const ESCENAS = [
+    { id: 1, img: 'img/giotto-greccio.jpg', nombre: 'El Belén de Greccio', brillo: ['50%', '45%'] },
+    { id: 2, img: 'img/giotto-manto.jpg', nombre: 'El manto al pobre', brillo: ['45%', '40%'] },
+    { id: 3, img: 'img/giotto-sandamian.jpg', nombre: 'Ante la cruz de San Damián', brillo: ['55%', '40%'] },
+    { id: 4, img: 'img/giotto-pajaros.jpg', nombre: 'La predicación a los pájaros', brillo: ['40%', '45%'] }
+  ];
+  const VOZ_TITULO = null, VOZ_FINAL = null;
+  const limpia = (s, n) => (s || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n);
+
+  // ---------- pantallas ----------
+  let actual = null;
+  function ir(id) {
+    if (actual) $('#' + actual).classList.remove('activa');
+    actual = id; const el = $('#' + id); el.classList.add('activa'); el.scrollTop = 0;
+    document.body.classList.toggle('oscuro', ['s-carta-form', 's-parroquia', 's-abrir', 's-sello', 's-carrusel'].includes(id));
+    if (id === 's-carta-form') { camModo = 'reposo'; history.replaceState(null, '', location.pathname); }
+  }
+  $$('[data-ir]').forEach((b) => b.addEventListener('click', () => ir(b.dataset.ir)));
+
+  function aviso(t) { const el = $('#toast'); el.textContent = t; el.classList.add('ver'); setTimeout(() => el.classList.remove('ver'), 2200); }
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // ---------- sonido ----------
+  const musica = new Audio('audio/musica.mp3'); musica.loop = true; musica.volume = 0.45;
+  let mudo = false, vozActual = null;
+  const btnSonido = $('#sonido');
+  const sonando = () => !musica.paused && !musica.muted;
+  function marcaBoton() { btnSonido.classList.toggle('apagado', musica.paused); btnSonido.classList.toggle('mudo', mudo && !musica.paused); }
+  musica.addEventListener('play', marcaBoton); musica.addEventListener('pause', marcaBoton);
+  btnSonido.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    if (musica.paused) { mudo = false; musica.muted = false; arrancaMusica(); return; }
+    mudo = !mudo; musica.muted = mudo; if (vozActual) vozActual.muted = mudo; marcaBoton();
+  });
+  // volumen de la música mediante Web Audio (en iPhone audio.volume no funciona)
+  let actx = null, ganancia = null;
+  function volumen(v) {
+    if (ganancia) { const t = actx.currentTime; ganancia.gain.cancelScheduledValues(t); ganancia.gain.setTargetAtTime(v, t, 0.25); }
+    else musica.volume = v;
+  }
+  function arrancaMusica() {
+    btnSonido.hidden = false;
+    try {
+      if (!actx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) { actx = new AC(); const src = actx.createMediaElementSource(musica); ganancia = actx.createGain(); ganancia.gain.value = 0.45; src.connect(ganancia).connect(actx.destination); musica.volume = 1; }
+      }
+      if (actx && actx.state === 'suspended') actx.resume();
+    } catch (e) { actx = null; ganancia = null; }
+    musica.play().then(marcaBoton).catch(marcaBoton);
+  }
+  // intenta sonar nada más abrir; si el navegador no lo deja, arranca con el primer toque en cualquier sitio
+  musica.play().then(marcaBoton).catch(marcaBoton);
+  const primerToque = () => { if (!mudo) arrancaMusica(); ['pointerdown', 'keydown', 'touchstart'].forEach((e) => removeEventListener(e, primerToque, true)); };
+  ['pointerdown', 'keydown', 'touchstart'].forEach((e) => addEventListener(e, primerToque, true));
+  function habla(src) {
+    return new Promise((res) => {
+      if (!src) { setTimeout(res, 600); return; }
+      const a = new Audio(src); vozActual = a; a.muted = mudo;
+      volumen(0.16);
+      const fin = () => { volumen(0.45); res(); };
+      a.addEventListener('ended', fin, { once: true }); a.addEventListener('error', fin, { once: true });
+      a.play().catch(fin);
+    });
+  }
+
+  // ---------- formulario ----------
+  $('#lista-mensajes').innerHTML = MENSAJES.map((m, i) =>
+    `<label class="mensaje-op"><input type="radio" name="m" value="${m.id}" ${i === 1 ? 'checked' : ''}>${m.texto}</label>`).join('');
+  $('#lista-escenas').innerHTML = ESCENAS.map((e, i) =>
+    `<label class="mini" title="${e.nombre}"><input type="radio" name="e" value="${e.id}" ${i === 0 ? 'checked' : ''} aria-label="${e.nombre}"><img src="${e.img}" alt=""></label>`).join('');
+  $('#lista-escenas').style.gridTemplateColumns = 'repeat(4,1fr)';
+
+  function enlace(d) {
+    const p = new URLSearchParams({ para: d.para, de: d.de, m: d.m, e: d.e });
+    if (d.nota) p.set('n', d.nota);
+    return location.origin + location.pathname + '?' + p.toString();
+  }
+
+  $('#formulario').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const f = new FormData(ev.target);
+    const d = { para: limpia(f.get('para'), 30), de: limpia(f.get('de'), 30), m: +f.get('m'), e: +f.get('e'), nota: limpia(f.get('nota'), 140) };
+    if (!d.para || !d.de) { aviso('Escribe los dos nombres'); return; }
+    arrancaMusica();
+    const url = enlace(d);
+    const msg = MENSAJES.find((x) => x.id === d.m), esc = ESCENAS.find((x) => x.id === d.e);
+    // carta en miniatura
+    const mini = $('#carta-mini'); mini.innerHTML = '';
+    const im = document.createElement('img'); im.src = esc.img; im.alt = ''; mini.appendChild(im);
+    const p = document.createElement('p'); p.textContent = msg.texto; mini.appendChild(p);
+    const sobre = $('#sobre-envio'); sobre.className = 'sobre';
+    $('#pie-sello').textContent = 'Guardando tu carta…';
+    ir('s-sello');
+    await espera(500); sobre.classList.add('dentro');
+    await espera(1100); sobre.classList.add('cerrado'); $('#pie-sello').textContent = 'Sellando…';
+    await espera(900); sobre.classList.add('sellado'); $('#pie-sello').textContent = 'Sellada con el lacre de Santa Casilda';
+    await espera(1400);
+    // viaje
+    $('#txt-vuelo').innerHTML = 'Tu buena noticia viaja<br>hacia Greccio…';
+    ir('s-vuelo'); await vuela();
+    $('#txt-vuelo').innerHTML = 'Ha llegado a Greccio';
+    await espera(1200);
+    $('#listo-para').textContent = d.para;
+    const texto = `${d.para}, tienes una carta desde Greccio ✉️\nÁbrela aquí: ${url}`;
+    $('#btn-whatsapp').href = 'https://wa.me/?text=' + encodeURIComponent(texto);
+    $('#btn-ver').href = url;
+    $('#btn-copiar').onclick = async () => {
+      try { await navigator.clipboard.writeText(url); aviso('Enlace copiado'); }
+      catch (e) { prompt('Copia el enlace:', url); }
+    };
+    ir('s-listo');
+  });
+
+  // ---------- quien recibe ----------
+  const q = new URLSearchParams(location.search);
+  // Sin parámetros, la web abre la carta de la parroquia (primer envío, para todos los amigos de WhatsApp).
+  const PARROQUIA = { para: '', de: 'Parroquia de Santa Casilda', m: 1, e: 1, nota: 'Esta Navidad queremos que la luz de Greccio te llegue a ti. Y después, a quien tú quieras.', generica: true };
+  const conCarta = q.get('para') && q.get('de');
+  const R = conCarta
+    ? { para: limpia(q.get('para'), 30), de: limpia(q.get('de'), 30), m: +q.get('m') || 1, e: +q.get('e') || 1, nota: limpia(q.get('n'), 140), generica: false }
+    : PARROQUIA;
+
+  // ---------- la carta de Belén (texto de prueba) ----------
+  const CARTA_BELEN = [
+    { t: 'Era la Navidad de 1223. Francisco quiso celebrarla en Greccio, un pueblo en las montañas del valle de Rieti.', img: 'img/giotto-greccio.jpg', b: ['50%', '45%'] },
+    { t: '«Quiero celebrar la memoria del Niño que nació en Belén.»', cls: 'cita' },
+    { t: 'Preparó un pesebre con heno, junto a un buey y un asno. Aquella noche Greccio se convirtió en un nuevo Belén.', img: 'img/giotto-greccio.jpg', b: ['50%', '45%'] },
+    { t: 'Francisco lo había dejado todo para seguir a Jesús pobre.', img: 'img/giotto-renuncia.jpg', b: ['50%', '45%'] },
+    { t: '«Siendo rico, quiso escoger la pobreza.»', cls: 'destacado' },
+    { t: 'Por eso en Navidad pedía que nadie pasara hambre: ni los pobres, ni siquiera los animales.', img: 'img/giotto-manto.jpg', b: ['45%', '40%'] },
+    { t: 'El mismo Jesús que nació en Belén le había hablado desde la cruz de San Damián.', img: 'img/giotto-sandamian.jpg', b: ['55%', '40%'], cls: 'fuerte' },
+    { t: 'Y Francisco salió a anunciarlo a todos, hasta a los pájaros del camino.', img: 'img/giotto-pajaros.jpg', b: ['40%', '45%'] },
+    { t: '«El Señor te dé la paz.»', cls: 'cita' },
+    { t: 'Esta Navidad, haz en tu casa un pequeño Greccio: deja que el Niño de Belén encuentre sitio en ella.' }
+  ];
+  function cambiaImagen(src, b) {
+    const im = $('#carta-img'), fig = $('.carta-imagen');
+    im.style.opacity = 0;
+    setTimeout(() => { im.src = src; fig.style.setProperty('--bx', b[0]); fig.style.setProperty('--by', b[1]); im.style.opacity = 1; }, 450);
+  }
+  // voz con las palabras apareciendo a su ritmo
+  function hablaFrase(src, el) {
+    const spans = [...el.children];
+    return new Promise((res) => {
+      if (!src) { const t0 = performance.now(), dur = 700 + spans.length * 300;
+        (function f() { const u = (performance.now() - t0) / dur; spans.forEach((s, i) => s.classList.toggle('ya', i < Math.ceil(u * spans.length))); if (u < 1) requestAnimationFrame(f); else setTimeout(() => { spans.forEach((s) => s.classList.add('ya')); res(); }, 1400); })(); return; }
+      const a = new Audio(src); vozActual = a; a.muted = mudo; volumen(0.16);
+      let fin = false;
+      const acaba = () => { if (fin) return; fin = true; spans.forEach((s) => s.classList.add('ya')); volumen(0.45); res(); };
+      const pinta = () => {
+        if (fin) return;
+        const d = a.duration && isFinite(a.duration) ? a.duration : 4, u = Math.min(1, a.currentTime / (d * 0.82));
+        const n = Math.ceil(u * spans.length); spans.forEach((s, i) => s.classList.toggle('ya', i < n));
+        requestAnimationFrame(pinta);
+      };
+      a.addEventListener('ended', acaba, { once: true });
+      a.addEventListener('error', () => { setTimeout(acaba, 2500); }, { once: true });
+      a.play().then(() => requestAnimationFrame(pinta)).catch(() => {
+        // sin audio: revela por tiempo
+        const t0 = performance.now(), dur = 600 + spans.length * 330;
+        (function f() { const u = (performance.now() - t0) / dur; spans.forEach((s, i) => s.classList.toggle('ya', i < Math.ceil(u * spans.length))); if (u < 1) requestAnimationFrame(f); else setTimeout(acaba, 500); })();
+      });
+    });
+  }
+  function ponFrase(texto, clase) {
+    const el = $('#car-frase'); el.className = 'car-frase ' + (clase || '');
+    el.innerHTML = ''; texto.split(' ').forEach((w, i) => { const sp = document.createElement('span'); sp.textContent = (i ? ' ' : '') + w; el.appendChild(sp); });
+    return el;
+  }
+  // carrusel 3D de tarjetas flotantes
+  let tarjetas = [], posCar = 0, posObjetivo = 0, carVivo = false;
+  function montaCarrusel() {
+    const imgs = []; CARTA_BELEN.forEach((p) => { if (p.img && !imgs.find((x) => x.img === p.img)) imgs.push({ img: p.img, b: p.b }); });
+    const anillo = $('#car-anillo'), puntos = $('#car-puntos'); anillo.innerHTML = ''; puntos.innerHTML = '';
+    tarjetas = imgs.map((x) => {
+      const t = document.createElement('div'); t.className = 'tarjeta'; t.style.setProperty('--bx', x.b[0]); t.style.setProperty('--by', x.b[1]);
+      t.innerHTML = `<img src="${x.img}" alt=""><div class="luz"></div><div class="brillo-paso"></div><div class="sombra"></div><div class="marco"></div>`;
+      anillo.appendChild(t); puntos.appendChild(document.createElement('i')); t.dataset.img = x.img; return t;
+    });
+    posCar = posObjetivo = 0;
+    if (!carVivo) { carVivo = true; requestAnimationFrame(animaCarrusel); }
+  }
+  function animaCarrusel(now) {
+    const t = now / 1000; posCar += (posObjetivo - posCar) * 0.06;
+    const cw = tarjetas[0] ? tarjetas[0].offsetWidth : 260;
+    tarjetas.forEach((el, k) => {
+      const d = k - posCar, ad = Math.abs(d);
+      const tx = d * cw * 0.84 * (1 - .1 * Math.min(ad, 2)), tz = -Math.min(ad, 2.2) * cw * 0.62, ry = -Math.sign(d) * Math.min(ad, 1) * 34;
+      const bob = cw * 0.03 * Math.sin(t * 1.2 + k * 1.7), rz = 1.3 * Math.sin(t * .86 + k * 2.3);
+      el.style.transform = `translateX(${tx}px) translateY(${bob}px) translateZ(${tz}px) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+      el.style.opacity = Math.max(0, Math.min(1, 1.9 - ad)); el.style.zIndex = 100 - Math.round(ad * 10);
+      el.children[3].style.opacity = Math.min(.75, ad * .55); el.children[4].style.opacity = Math.max(0, 1 - ad * 2) * .6;
+    });
+    $('#car-anillo').style.transform = `rotateY(${3 * Math.sin(t * .78)}deg) rotateX(${1.6 * Math.sin(t * .57)}deg)`;
+    [...$('#car-puntos').children].forEach((p, k) => p.classList.toggle('on', Math.abs(k - posCar) < .5));
+    if (actual === 's-carrusel' || actual === 's-abrir') requestAnimationFrame(animaCarrusel); else carVivo = false;
+  }
+  function irTarjeta(img) {
+    const k = tarjetas.findIndex((t) => t.dataset.img === img); if (k < 0 || k === posObjetivo) return;
+    posObjetivo = k; const t = tarjetas[k]; t.classList.remove('llega'); void t.offsetWidth; setTimeout(() => t.classList.add('llega'), 500);
+  }
+  async function abrirCartaBelen() {
+    arrancaMusica();
+    const sobre = $('#sobre-llega'); sobre.className = 'sobre cerrado sellado'; sobre.parentElement.style.opacity = 1;
+    $('#carta').style.display = 'none';
+    ir('s-abrir');
+    await espera(900); sobre.classList.add('roto');
+    await espera(700); sobre.classList.remove('cerrado');
+    await espera(900);
+    montaCarrusel();
+    $('#car-saludo').classList.remove('ver'); $('#car-firma').classList.remove('ver'); $('#car-seguir').classList.remove('ver');
+    ponFrase('');
+    ir('s-carrusel');
+    await espera(900);
+    $('#car-saludo').classList.add('ver');
+    await hablaFrase(VOZ_TITULO, ponFrase('Greccio: un Belén para ti', 'titulo'));
+    await espera(300); $('#car-saludo').classList.remove('ver');
+    for (const p of CARTA_BELEN) {
+      if (p.img) irTarjeta(p.img);
+      await hablaFrase(p.v, ponFrase(p.t, p.cls));
+      await espera(450);
+    }
+    $('#car-firma').classList.add('ver'); await espera(900);
+    $('#car-seguir').classList.add('ver');
+  }
+  $('#car-seguir').addEventListener('click', () => { ir('s-parroquia'); camModo = 'reposo'; habla(VOZ_FINAL); });
+  async function abrirCarta() {
+    if (R.generica) return abrirCartaBelen();
+    arrancaMusica();
+    const msg = MENSAJES.find((x) => x.id === R.m) || MENSAJES[0];
+    const esc = ESCENAS.find((x) => x.id === R.e) || ESCENAS[0];
+    $('#carta-img').src = esc.img;
+    const fig = $('.carta-imagen'); fig.style.setProperty('--bx', esc.brillo[0]); fig.style.setProperty('--by', esc.brillo[1]);
+    $('#carta-para').textContent = R.generica ? 'Querido amigo, querida amiga' : R.para; $('#carta-de').textContent = R.de;
+    $('#carta-mensaje').textContent = msg.texto; $('#carta-nota').textContent = R.nota ? '«' + R.nota + '»' : '';
+    const sobre = $('#sobre-llega'); sobre.className = 'sobre cerrado sellado'; sobre.parentElement.style.opacity = 1;
+    ir('s-abrir');
+    await espera(900); sobre.classList.add('roto');
+    await espera(700); sobre.classList.remove('cerrado');
+    await espera(1000); sobre.parentElement.style.transition = 'opacity .6s'; sobre.parentElement.style.opacity = 0;
+    $('#carta').classList.add('abierta');
+    await espera(900);
+    const partes = $$('.carta-texto > *');
+    partes[0].classList.add('ver'); await espera(400); partes[1].classList.add('ver');
+    await habla(VOZ_TITULO);
+    partes[2].classList.add('ver'); await habla(msg.voz);
+    partes[3].classList.add('ver'); await espera(R.nota ? 1600 : 200);
+    partes[4].classList.add('ver'); await espera(900);
+    $('#btn-seguir').classList.add('ver');
+  }
+  $('#btn-seguir').addEventListener('click', () => { ir('s-parroquia'); camModo = 'reposo'; habla(VOZ_FINAL); });
+  $('#btn-abrir').addEventListener('click', abrirCarta);
+  // reenviar la misma carta de Belén
+  const ENLACE = location.origin + location.pathname;
+  $('#btn-reenviar').href = 'https://wa.me/?text=' + encodeURIComponent('✉️ Tienes una carta desde Greccio, donde San Francisco hizo el primer Belén. Es para ti.\nÁbrela aquí: ' + ENLACE);
+  $('#btn-copiar2').addEventListener('click', async () => { try { await navigator.clipboard.writeText(ENLACE); aviso('Enlace copiado'); } catch (e) { prompt('Copia el enlace:', ENLACE); } });
+  $('#btn-otra-vez').addEventListener('click', () => { location.href = ENLACE; });
+
+  // ---------- mapa 3D de Tierra Santa ----------
+  const lienzo = $('#mapa');
+  let renderer, scene, camera, BL, glow, camModo = 'reposo', t0 = performance.now(), lugarActual = 'belen';
+  const LUGARES = {};
+  function cambiaLugar(n) {
+    if (!renderer || !LUGARES[n]) return;
+    for (const k in LUGARES) LUGARES[k].mesh.visible = (k === n);
+    lugarActual = n; BL = LUGARES[n].objetivo; glow.position.copy(BL).add(new THREE.Vector3(0, .08, 0));
+  }
+  const sobreVolando = $('#sobre-volando');
+  let vuelo = null;
+  const lerp = (a, b, u) => a + (b - a) * u, clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const suave = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+
+  function iniciaMapa() {
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: lienzo, antialias: true, alpha: true, powerPreference: 'low-power' });
+    } catch (e) { lienzo.style.background = 'radial-gradient(ellipse at 50% 30%,#1a2240,#07080c 70%)'; return false; }
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75)); renderer.setClearColor(0x000000, 0);
+    scene = new THREE.Scene(); scene.fog = new THREE.Fog(0x0a0d18, 16, 42);
+    camera = new THREE.PerspectiveCamera(50, 1, 0.05, 200);
+    const sol = new THREE.DirectionalLight(0xffe2b0, 0.9); sol.position.set(-8, 10, -6); scene.add(sol);
+    scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x6a5434, 1.5));
+    function terreno(H, url, lon0, dlon, latTop, dlat, lonT, latT, K, avisa) {
+      const { w: GW, h: GH, d: GD } = H;
+      const geo = new THREE.BufferGeometry(), pos = new Float32Array(GW * GH * 3), uv = new Float32Array(GW * GH * 2);
+      for (let i = 0; i < GH; i++) for (let j = 0; j < GW; j++) {
+        const k = i * GW + j; pos[k * 3] = j / (GW - 1) * 18 - 9; pos[k * 3 + 1] = GD[k] * K; pos[k * 3 + 2] = i / (GH - 1) * 24 - 12;
+        uv[k * 2] = j / (GW - 1); uv[k * 2 + 1] = 1 - i / (GH - 1);
+      }
+      const idx = []; for (let i = 0; i < GH - 1; i++) for (let j = 0; j < GW - 1; j++) { const a = i * GW + j, b = a + 1, c = a + GW, d = c + 1; idx.push(a, c, b, b, c, d); }
+      geo.setIndex(idx); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); geo.computeVertexNormals();
+      const tex = new THREE.TextureLoader().load(url, avisa); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+      const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: tex })); scene.add(mesh);
+      const jj = Math.round((lonT - lon0) / dlon * (GW - 1)), ii = Math.round((latTop - latT) / dlat * (GH - 1));
+      const objetivo = new THREE.Vector3(jj / (GW - 1) * 18 - 9, Math.max(0, GD[ii * GW + jj]) * K, ii / (GH - 1) * 24 - 12);
+      return { mesh, objetivo };
+    }
+    LUGARES.belen = terreno(window.HGT, 'assets/terreno-greccio.jpg', 11.8, 1.8, 43.6, 2.4, 12.766, 42.524, 0.00042, () => { window.__mapaListo = true; });
+    LUGARES.belen.lado = -1;
+    if (window.HGT_MAD) {
+      LUGARES.madrid = terreno(window.HGT_MAD, 'assets/terreno-madrid.jpg', -4.55, 1.6, 41.48, 1.93, -3.744, 40.381, 0.00042, () => { window.__madridListo = true; });
+      LUGARES.madrid.lado = 1; LUGARES.madrid.mesh.visible = false;
+    }
+    BL = LUGARES.belen.objetivo;
+    const gc = document.createElement('canvas'); gc.width = gc.height = 128; const g = gc.getContext('2d');
+    const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,250,225,1)'); gr.addColorStop(.15, 'rgba(255,220,140,.9)'); gr.addColorStop(.45, 'rgba(255,180,80,.3)'); gr.addColorStop(1, 'rgba(255,170,60,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(gc), blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, fog: false }));
+    glow.position.copy(BL).add(new THREE.Vector3(0, .08, 0)); scene.add(glow);
+    lugarActual = 'belen';
+    redimensiona(); addEventListener('resize', redimensiona);
+    return true;
+  }
+  function redimensiona() {
+    if (!renderer) return;
+    const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h;
+    camera.fov = w / h < 0.8 ? 50 : 38; camera.updateProjectionMatrix();
+    polvo.width = w; polvo.height = h;
+  }
+  function colocaCamara(dist, el, az, mira) {
+    const e = el * Math.PI / 180, a = az * Math.PI / 180;
+    camera.position.set(BL.x + dist * Math.cos(e) * Math.sin(a), BL.y + dist * Math.sin(e), BL.z + dist * Math.cos(e) * Math.cos(a));
+    camera.lookAt(mira || new THREE.Vector3(BL.x, BL.y, BL.z + 0.4));
+  }
+  // trayectoria de la carta: del Mediterráneo a Belén
+  function puntoVuelo(u) {
+    const L = (LUGARES[lugarActual] || { lado: -1 }).lado;
+    const P0 = BL.clone().add(new THREE.Vector3(L * 9.5, 2.3, -3.5)), P1 = BL.clone().add(new THREE.Vector3(L * 4.5, 3.9, 1.5));
+    const P2 = new THREE.Vector3(BL.x, BL.y + 0.12, BL.z);
+    const a = P0.clone().lerp(P1, u), b = P1.clone().lerp(P2, u); return a.lerp(b, u);
+  }
+  // la carta sale de Belén hacia el oeste (recorrido inverso)
+  function sale() {
+    return new Promise((res) => {
+      const el = $('#sobre-sale');
+      if (!renderer) { setTimeout(res, 2500); return; }
+      vuelo = { inicio: performance.now(), dur: 3800, fin: res, el, inverso: true }; camModo = 'vuelo';
+      el.classList.add('visible');
+    });
+  }
+  function vuela(el, dur) {
+    el = el || sobreVolando;
+    return new Promise((res) => {
+      if (!renderer) { setTimeout(res, 2500); return; }
+      vuelo = { inicio: performance.now(), dur: dur || 6500, fin: res, el }; camModo = 'vuelo';
+      el.classList.add('visible');
+    });
+  }
+
+  // polvo dorado
+  const polvo = $('#polvo'), pc = polvo.getContext('2d');
+  const R2 = ((s) => () => (s = (s * 16807) % 2147483647) / 2147483647)(7);
+  const motas = [...Array(70)].map(() => ({ x: R2(), y: R2(), z: .3 + R2() * .9, r: .6 + R2() * 2, f: R2() * 6.28, v: 6 + R2() * 16 }));
+  function dibujaPolvo(t) {
+    const w = polvo.width, h = polvo.height; pc.clearRect(0, 0, w, h);
+    for (const m of motas) {
+      const y = ((m.y * h - t * m.v * m.z) % h + h) % h, x = m.x * w + Math.sin(t * .4 + m.f) * 26 * m.z;
+      const a = (.25 + .75 * (.5 + .5 * Math.sin(t * 1.3 + m.f))) * m.z * .7, r = m.r * 3 * m.z;
+      const g = pc.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(255,226,160,${a})`); g.addColorStop(1, 'rgba(255,226,160,0)');
+      pc.fillStyle = g; pc.beginPath(); pc.arc(x, y, r, 0, 6.283); pc.fill();
+    }
+  }
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function bucle(now) {
+    const t = (now - t0) / 1000;
+    if (renderer) {
+      if (camModo === 'vuelo' && vuelo) {
+        const u = clamp((now - vuelo.inicio) / vuelo.dur), e0 = suave(u), e = vuelo.inverso ? 1 - e0 : e0;
+        const L = (LUGARES[lugarActual] || { lado: -1 }).lado;
+        colocaCamara(lerp(15, 10, e), lerp(46, 36, e), L * lerp(48, 10, e), new THREE.Vector3(BL.x + L * lerp(4, 0, e), BL.y, BL.z + lerp(-2, .4, e)));
+        const p = puntoVuelo(e).project(camera);
+        const x = (p.x * .5 + .5) * innerWidth, y = (-p.y * .5 + .5) * innerHeight, s = lerp(1.1, .45, e);
+        vuelo.el.style.transform = `translate(${x}px,${y}px) rotate(${lerp(-14, 4, e) + Math.sin(t * 3) * 3}deg) scale(${s})`;
+        glow.scale.setScalar(vuelo.inverso ? lerp(1.8, 1.0, clamp(u / .3)) : lerp(.6, 1.6, clamp((u - .8) / .2)));
+        if (u >= 1) { vuelo.el.classList.remove('visible'); const f = vuelo.fin; vuelo = null; camModo = 'llegada'; f(); }
+      } else {
+        const L = (LUGARES[lugarActual] || { lado: -1 }).lado;
+        const az = reduce ? L * 6 : L * 10 + Math.sin(t * .06) * 14;
+        colocaCamara(11.5 + Math.sin(t * .05) * .8, 38, az);
+        glow.scale.setScalar(1.1 * (1 + .15 * Math.sin(t * 3.2)));
+      }
+      renderer.render(scene, camera);
+    }
+    if (!reduce) dibujaPolvo(t);
+    requestAnimationFrame(bucle);
+  }
+
+  // ---------- arranque ----------
+  polvo.width = innerWidth; polvo.height = innerHeight;
+  iniciaMapa();
+  requestAnimationFrame(bucle);
+  // ---------- viaje Belén → Madrid, todo en 3D (primer envío, de la parroquia) ----------
+  let saltado = false;
+  const esperaO = (p) => Promise.race([p, new Promise((r) => { const iv = setInterval(() => { if (saltado) { clearInterval(iv); r(); } }, 100); })]);
+  async function viajeInicial() {
+    const bS = $('#saltar'); bS.hidden = false; bS.onclick = () => { saltado = true; };
+    const txtA = $('#sale-ante'), txt = $('#sale-txt');
+    ir('s-sale');
+    const t0m = performance.now(); while (!window.__mapaListo && performance.now() - t0m < 5000 && !saltado) await espera(100);
+    if (!saltado) await esperaO(espera(1200));
+    if (!saltado) await esperaO(sale());
+    if (vuelo) { vuelo.el.classList.remove('visible'); vuelo = null; }
+    // el salto: destello y cambio a Madrid
+    const fl = $('#destello');
+    if (!saltado) { fl.classList.add('on'); await espera(650); }
+    cambiaLugar('madrid'); camModo = 'reposo';
+    txtA.textContent = 'MADRID · NOCHEBUENA'; txt.innerHTML = '…y viaja hasta<br><em>Madrid</em>';
+    fl.classList.remove('on');
+    if (!saltado) { await esperaO(espera(700)); await esperaO(vuela($('#sobre-sale'), 5600)); }
+    if (vuelo) { vuelo.el.classList.remove('visible'); vuelo = null; }
+    camModo = 'reposo';
+    if (!saltado) {
+      txtA.textContent = 'CARABANCHEL'; txt.innerHTML = 'Ha llegado a la<br><em>Parroquia de Santa Casilda</em>';
+      await esperaO(espera(2800));
+    }
+    bS.hidden = true;
+    ir('s-llega');
+  }
+
+  if (q.has('escribir')) {
+    ir('s-inicio');
+  } else {
+    $('#llega-para').textContent = R.generica ? 'Amigo, amiga' : R.para;
+    $('#llega-de').textContent = R.generica ? 'Desde la Parroquia de Santa Casilda te la enviamos a ti.' : 'Te la envía ' + R.de + ' desde Greccio.';
+    document.title = (R.generica ? 'Tienes una carta desde Greccio' : R.para + ', tienes una carta desde Greccio');
+    if (R.generica) {
+      $('#llega-foto').hidden = false; $('#llega-ante').textContent = 'DE GRECCIO A CARABANCHEL';
+      ir('s-portada');
+      $('#btn-empezar').addEventListener('click', () => { arrancaMusica(); viajeInicial(); }, { once: true });
+    } else ir('s-llega');
+  }
+})();
