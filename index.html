@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Greccio: un Belén para ti · Parroquia de Santa Casilda</title>
+<title>Greccio: un Belén para ti · Parroquia del Cristo de la Paz</title>
 <meta name="description" content="Alguien te ha enviado una carta desde Greccio, el primer Belén. Ábrela.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Tienes una carta desde Greccio">
-<meta property="og:description" content="Un Belén para ti, con San Francisco de Asís. Feliz Navidad desde la Parroquia de Santa Casilda.">
+<meta property="og:description" content="Un Belén para ti, con San Francisco de Asís. Feliz Navidad desde la Parroquia del Cristo de la Paz (Franciscanos).">
 <meta property="og:image" content="https://fjpereirag.github.io/greccio/og.jpg">
 <meta property="og:url" content="https://fjpereirag.github.io/greccio/">
 <meta name="twitter:card" content="summary_large_image">
@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Pinyon+Script&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=1">
+<link rel="stylesheet" href="estilo.css?v=2">
 </head>
 <body>
 <canvas id="mapa" aria-hidden="true"></canvas>
@@ -25,7 +25,7 @@
 <div id="destello" aria-hidden="true"></div>
 
 <header class="cabecera">
-  <span class="cab-a">PARROQUIA DE SANTA CASILDA</span>
+  <span class="cab-a">PARROQUIA DEL CRISTO DE LA PAZ</span>
   <span class="cab-b">Navidad 2026</span>
 </header>
 
@@ -77,7 +77,7 @@
         <div class="carta-mini" id="carta-mini"></div>
         <div class="sobre-frente"></div>
         <div class="solapa"></div>
-        <div class="lacre"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 7v26M12 15h16" stroke="#f3d79a" stroke-width="3.2" stroke-linecap="round"/></svg></div>
+        <div class="lacre"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 10h18M20 10v23" stroke="#f3d79a" stroke-width="3.2" stroke-linecap="round"/></svg></div>
       </div>
       <p class="pie-sobre" id="pie-sello">Sellando tu carta…</p>
     </div>
@@ -113,7 +113,7 @@
     <div class="bloque abajo centrado">
       <p class="antetitulo">GRECCIO · NAVIDAD 2026</p>
       <h1>Un Belén<br><em>viaja hacia ti</em></h1>
-      <p class="entradilla">En la Nochebuena de 1223, San Francisco hizo en Greccio el primer Belén. Hoy su luz llega a tu casa a través de la Parroquia de Santa Casilda.</p>
+      <p class="entradilla">En la Nochebuena de 1223, San Francisco hizo en Greccio el primer Belén. Hoy su luz llega a tu casa a través de la Parroquia del Cristo de la Paz.</p>
       <button class="boton" id="btn-empezar">Recibir la carta</button>
       <p class="aviso">Sube el volumen · con música</p>
     </div>
@@ -134,7 +134,7 @@
   <!-- ========== QUIEN RECIBE ========== -->
   <section id="s-llega" class="pantalla">
     <div class="bloque abajo centrado">
-      <figure class="foto foto-llega" id="llega-foto" hidden><img src="img/parroquia.webp" alt="Parroquia de Santa Casilda adornada para la Navidad"></figure>
+      <figure class="foto foto-llega" id="llega-foto" hidden><img src="img/parroquia.jpg" alt="Parroquia del Cristo de la Paz, en Carabanchel"></figure>
       <p class="antetitulo" id="llega-ante">DESDE GRECCIO</p>
       <h1><em id="llega-para"></em>,<br>tienes una carta</h1>
       <p class="entradilla" id="llega-de"></p>
@@ -149,7 +149,7 @@
         <div class="sobre-fondo"></div>
         <div class="sobre-frente"></div>
         <div class="solapa"></div>
-        <div class="lacre"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 7v26M12 15h16" stroke="#f3d79a" stroke-width="3.2" stroke-linecap="round"/></svg></div>
+        <div class="lacre"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 10h18M20 10v23" stroke="#f3d79a" stroke-width="3.2" stroke-linecap="round"/></svg></div>
       </div>
     </div>
     <article class="carta" id="carta">
@@ -171,20 +171,20 @@
     <div class="car-texto">
       <p class="car-saludo" id="car-saludo">Querido amigo, querida amiga:</p>
       <p class="car-frase" id="car-frase" aria-live="polite"></p>
-      <p class="car-firma" id="car-firma">— Parroquia de Santa Casilda</p>
+      <p class="car-firma" id="car-firma">— Parroquia del Cristo de la Paz</p>
       <button class="boton" id="car-seguir">Seguir</button>
     </div>
   </section>
 
   <section id="s-parroquia" class="pantalla">
     <div class="parroquia">
-      <figure class="foto"><img src="img/parroquia.webp" alt="Presbiterio de la Parroquia de Santa Casilda adornado para la Navidad, con el belén ante el altar"></figure>
+      <figure class="foto"><img src="img/parroquia.jpg" alt="Parroquia del Cristo de la Paz, en Carabanchel" onerror="this.onerror=null;this.src='img/giotto-greccio.jpg';this.alt='Giotto, El pesebre de Greccio'"></figure>
       <p class="feliz">Feliz Navidad</p>
       <p class="esperamos">Te esperamos</p>
       <div class="direccion">
-        <strong>PARROQUIA DE SANTA CASILDA</strong>
-        <span>C/ Parador del Sol, 10 · 28019 Madrid</span>
-        <span class="peq">Carabanchel</span>
+        <strong>PARROQUIA DEL CRISTO DE LA PAZ</strong>
+        <span>C/ Portalegre, 8 · 28019 Madrid</span>
+        <span class="peq">Franciscanos · Carabanchel</span>
       </div>
       <p class="relevo">Esta carta ha llegado desde Greccio para ti.<br>Ahora reenvíala a quien quieras.</p>
       <a class="boton boton-whatsapp" id="btn-reenviar" target="_blank" rel="noopener">
@@ -199,8 +199,8 @@
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script src="vendor/three.min.js"></script>
-<script src="assets/altura-greccio.js?v=1"></script>
-<script src="assets/altura-madrid.js?v=1"></script>
-<script src="app.js?v=1"></script>
+<script src="assets/altura-italia.js?v=2"></script>
+<script src="assets/altura-espana.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Una buena noticia para ti · Felicitación de Navidad · Parroquia de Santa Casilda
+// Greccio: un Belén para ti · Felicitación de Navidad · Parroquia del Cristo de la Paz (Franciscanos)
 // Quien envía escribe una carta; la carta viaja sobre Umbría y el valle de Rieti hasta Greccio y se comparte por WhatsApp.
 // Quien recibe abre el enlace, rompe el lacre y escucha su buena noticia.
 (function () {
@@ -8,10 +8,10 @@
 
   // ---------- contenido ----------
   const MENSAJES = [
-    { id: 1, texto: 'Esta Navidad, haz en tu casa un pequeño Greccio: deja sitio al Niño de Belén.', voz: null },
-    { id: 2, texto: '«El Señor te dé la paz.» (San Francisco, Testamento)', voz: null },
-    { id: 3, texto: '«Donde hay pobreza con alegría, no hay codicia ni avaricia.» (San Francisco, Admoniciones)', voz: null },
-    { id: 4, texto: 'El Hijo de Dios se hizo pequeño y pobre para que nadie tenga miedo de acercarse.', voz: null }
+    { id: 1, voz: 'audio/greccio_10.mp3', texto: 'Esta Navidad, haz en tu casa un pequeño Greccio: deja que el Niño de Belén encuentre sitio en ella.' },
+    { id: 2, voz: 'audio/greccio_09.mp3', texto: '«El Señor te dé la paz.»' },
+    { id: 3, voz: 'audio/greccio_13.mp3', texto: '«Donde hay pobreza con alegría, no hay codicia ni avaricia.»' },
+    { id: 4, voz: 'audio/greccio_14.mp3', texto: 'El Hijo de Dios se hizo pequeño y pobre para que nadie tenga miedo de acercarse.' }
   ];
   const ESCENAS = [
     { id: 1, img: 'img/giotto-greccio.jpg', nombre: 'El Belén de Greccio', brillo: ['50%', '45%'] },
@@ -19,7 +19,7 @@
     { id: 3, img: 'img/giotto-sandamian.jpg', nombre: 'Ante la cruz de San Damián', brillo: ['55%', '40%'] },
     { id: 4, img: 'img/giotto-pajaros.jpg', nombre: 'La predicación a los pájaros', brillo: ['40%', '45%'] }
   ];
-  const VOZ_TITULO = null, VOZ_FINAL = null;
+  const VOZ_TITULO = 'audio/greccio_00.mp3', VOZ_FINAL = 'audio/greccio_12.mp3';
   const limpia = (s, n) => (s || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n);
 
   // ---------- pantallas ----------
@@ -109,7 +109,7 @@
     ir('s-sello');
     await espera(500); sobre.classList.add('dentro');
     await espera(1100); sobre.classList.add('cerrado'); $('#pie-sello').textContent = 'Sellando…';
-    await espera(900); sobre.classList.add('sellado'); $('#pie-sello').textContent = 'Sellada con el lacre de Santa Casilda';
+    await espera(900); sobre.classList.add('sellado'); $('#pie-sello').textContent = 'Sellada con la Tau franciscana';
     await espera(1400);
     // viaje
     $('#txt-vuelo').innerHTML = 'Tu buena noticia viaja<br>hacia Greccio…';
@@ -130,7 +130,7 @@
   // ---------- quien recibe ----------
   const q = new URLSearchParams(location.search);
   // Sin parámetros, la web abre la carta de la parroquia (primer envío, para todos los amigos de WhatsApp).
-  const PARROQUIA = { para: '', de: 'Parroquia de Santa Casilda', m: 1, e: 1, nota: 'Esta Navidad queremos que la luz de Greccio te llegue a ti. Y después, a quien tú quieras.', generica: true };
+  const PARROQUIA = { para: '', de: 'Parroquia del Cristo de la Paz', m: 1, e: 1, nota: 'Esta Navidad queremos que la luz de Greccio te llegue a ti. Y después, a quien tú quieras.', generica: true };
   const conCarta = q.get('para') && q.get('de');
   const R = conCarta
     ? { para: limpia(q.get('para'), 30), de: limpia(q.get('de'), 30), m: +q.get('m') || 1, e: +q.get('e') || 1, nota: limpia(q.get('n'), 140), generica: false }
@@ -138,16 +138,16 @@
 
   // ---------- la carta de Belén (texto de prueba) ----------
   const CARTA_BELEN = [
-    { t: 'Era la Navidad de 1223. Francisco quiso celebrarla en Greccio, un pueblo en las montañas del valle de Rieti.', img: 'img/giotto-greccio.jpg', b: ['50%', '45%'] },
-    { t: '«Quiero celebrar la memoria del Niño que nació en Belén.»', cls: 'cita' },
-    { t: 'Preparó un pesebre con heno, junto a un buey y un asno. Aquella noche Greccio se convirtió en un nuevo Belén.', img: 'img/giotto-greccio.jpg', b: ['50%', '45%'] },
-    { t: 'Francisco lo había dejado todo para seguir a Jesús pobre.', img: 'img/giotto-renuncia.jpg', b: ['50%', '45%'] },
-    { t: '«Siendo rico, quiso escoger la pobreza.»', cls: 'destacado' },
-    { t: 'Por eso en Navidad pedía que nadie pasara hambre: ni los pobres, ni siquiera los animales.', img: 'img/giotto-manto.jpg', b: ['45%', '40%'] },
-    { t: 'El mismo Jesús que nació en Belén le había hablado desde la cruz de San Damián.', img: 'img/giotto-sandamian.jpg', b: ['55%', '40%'], cls: 'fuerte' },
-    { t: 'Y Francisco salió a anunciarlo a todos, hasta a los pájaros del camino.', img: 'img/giotto-pajaros.jpg', b: ['40%', '45%'] },
-    { t: '«El Señor te dé la paz.»', cls: 'cita' },
-    { t: 'Esta Navidad, haz en tu casa un pequeño Greccio: deja que el Niño de Belén encuentre sitio en ella.' }
+    { v: 'audio/greccio_01.mp3', t: 'Era la Navidad de 1223. Francisco quiso celebrarla en Greccio, un pueblo en las montañas del valle de Rieti.', img: 'img/giotto-greccio.jpg', b: ['50%', '45%'] },
+    { v: 'audio/greccio_02.mp3', t: '«Quiero celebrar la memoria del Niño que nació en Belén.»', cls: 'cita' },
+    { v: 'audio/greccio_03.mp3', t: 'Preparó un pesebre con heno, junto a un buey y un asno. Aquella noche Greccio se convirtió en un nuevo Belén.', img: 'img/giotto-greccio.jpg', b: ['50%', '45%'] },
+    { v: 'audio/greccio_04.mp3', t: 'Francisco lo había dejado todo para seguir a Jesús pobre.', img: 'img/giotto-renuncia.jpg', b: ['50%', '45%'] },
+    { v: 'audio/greccio_05.mp3', t: '«Siendo rico, quiso escoger la pobreza.»', cls: 'destacado' },
+    { v: 'audio/greccio_06.mp3', t: 'Por eso en Navidad pedía que nadie pasara hambre: ni los pobres, ni siquiera los animales.', img: 'img/giotto-manto.jpg', b: ['45%', '40%'] },
+    { v: 'audio/greccio_07.mp3', t: 'El mismo Jesús que nació en Belén le había hablado desde la cruz de San Damián.', img: 'img/giotto-sandamian.jpg', b: ['55%', '40%'], cls: 'fuerte' },
+    { v: 'audio/greccio_08.mp3', t: 'Y Francisco salió a anunciarlo a todos, hasta a los pájaros del camino.', img: 'img/giotto-pajaros.jpg', b: ['40%', '45%'] },
+    { v: 'audio/greccio_09.mp3', t: '«El Señor te dé la paz.»', cls: 'cita' },
+    { v: 'audio/greccio_10.mp3', t: 'Esta Navidad, haz en tu casa un pequeño Greccio: deja que el Niño de Belén encuentre sitio en ella.' }
   ];
   function cambiaImagen(src, b) {
     const im = $('#carta-img'), fig = $('.carta-imagen');
@@ -170,7 +170,9 @@
         requestAnimationFrame(pinta);
       };
       a.addEventListener('ended', acaba, { once: true });
-      a.addEventListener('error', () => { setTimeout(acaba, 2500); }, { once: true });
+      const porTiempo = () => { if (fin) return; const t0 = performance.now(), dur = 700 + spans.length * 300;
+        (function f() { if (fin) return; const u = (performance.now() - t0) / dur; spans.forEach((s, i) => s.classList.toggle('ya', i < Math.ceil(u * spans.length))); if (u < 1) requestAnimationFrame(f); else setTimeout(acaba, 1400); })(); };
+      a.addEventListener('error', porTiempo, { once: true });
       a.play().then(() => requestAnimationFrame(pinta)).catch(() => {
         // sin audio: revela por tiempo
         const t0 = performance.now(), dur = 600 + spans.length * 330;
@@ -291,7 +293,7 @@
       renderer = new THREE.WebGLRenderer({ canvas: lienzo, antialias: true, alpha: true, powerPreference: 'low-power' });
     } catch (e) { lienzo.style.background = 'radial-gradient(ellipse at 50% 30%,#1a2240,#07080c 70%)'; return false; }
     renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75)); renderer.setClearColor(0x000000, 0);
-    scene = new THREE.Scene(); scene.fog = new THREE.Fog(0x0a0d18, 16, 42);
+    scene = new THREE.Scene(); scene.fog = new THREE.Fog(0x0a0d18, 30, 85);
     camera = new THREE.PerspectiveCamera(50, 1, 0.05, 200);
     const sol = new THREE.DirectionalLight(0xffe2b0, 0.9); sol.position.set(-8, 10, -6); scene.add(sol);
     scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x6a5434, 1.5));
@@ -310,10 +312,10 @@
       const objetivo = new THREE.Vector3(jj / (GW - 1) * 18 - 9, Math.max(0, GD[ii * GW + jj]) * K, ii / (GH - 1) * 24 - 12);
       return { mesh, objetivo };
     }
-    LUGARES.belen = terreno(window.HGT, 'assets/terreno-greccio.jpg', 11.8, 1.8, 43.6, 2.4, 12.766, 42.524, 0.00042, () => { window.__mapaListo = true; });
+    LUGARES.belen = terreno(window.HGT, 'assets/terreno-italia.jpg', 7.0, 11.5, 47.4, 11.4, 12.766, 42.524, 0.00024, () => { window.__mapaListo = true; });
     LUGARES.belen.lado = -1;
     if (window.HGT_MAD) {
-      LUGARES.madrid = terreno(window.HGT_MAD, 'assets/terreno-madrid.jpg', -4.55, 1.6, 41.48, 1.93, -3.744, 40.381, 0.00042, () => { window.__madridListo = true; });
+      LUGARES.madrid = terreno(window.HGT_MAD, 'assets/terreno-espana.jpg', -9.8, 13.1, 45.4, 13.4, -3.729, 40.388, 0.00024, () => { window.__madridListo = true; });
       LUGARES.madrid.lado = 1; LUGARES.madrid.mesh.visible = false;
     }
     BL = LUGARES.belen.objetivo;
@@ -341,7 +343,7 @@
   // trayectoria de la carta: del Mediterráneo a Belén
   function puntoVuelo(u) {
     const L = (LUGARES[lugarActual] || { lado: -1 }).lado;
-    const P0 = BL.clone().add(new THREE.Vector3(L * 9.5, 2.3, -3.5)), P1 = BL.clone().add(new THREE.Vector3(L * 4.5, 3.9, 1.5));
+    const P0 = BL.clone().add(new THREE.Vector3(L * 12, 5, -5)), P1 = BL.clone().add(new THREE.Vector3(L * 6, 7, 2));
     const P2 = new THREE.Vector3(BL.x, BL.y + 0.12, BL.z);
     const a = P0.clone().lerp(P1, u), b = P1.clone().lerp(P2, u); return a.lerp(b, u);
   }
@@ -384,7 +386,7 @@
       if (camModo === 'vuelo' && vuelo) {
         const u = clamp((now - vuelo.inicio) / vuelo.dur), e0 = suave(u), e = vuelo.inverso ? 1 - e0 : e0;
         const L = (LUGARES[lugarActual] || { lado: -1 }).lado;
-        colocaCamara(lerp(15, 10, e), lerp(46, 36, e), L * lerp(48, 10, e), new THREE.Vector3(BL.x + L * lerp(4, 0, e), BL.y, BL.z + lerp(-2, .4, e)));
+        colocaCamara(lerp(27, 17, e), lerp(60, 50, e), L * lerp(40, 8, e), new THREE.Vector3(BL.x + L * lerp(4, 0, e), BL.y, BL.z + lerp(-2, .4, e)));
         const p = puntoVuelo(e).project(camera);
         const x = (p.x * .5 + .5) * innerWidth, y = (-p.y * .5 + .5) * innerHeight, s = lerp(1.1, .45, e);
         vuelo.el.style.transform = `translate(${x}px,${y}px) rotate(${lerp(-14, 4, e) + Math.sin(t * 3) * 3}deg) scale(${s})`;
@@ -393,7 +395,7 @@
       } else {
         const L = (LUGARES[lugarActual] || { lado: -1 }).lado;
         const az = reduce ? L * 6 : L * 10 + Math.sin(t * .06) * 14;
-        colocaCamara(11.5 + Math.sin(t * .05) * .8, 38, az);
+        colocaCamara(19 + Math.sin(t * .05) * 1.2, 52, az);
         glow.scale.setScalar(1.1 * (1 + .15 * Math.sin(t * 3.2)));
       }
       renderer.render(scene, camera);
@@ -421,13 +423,13 @@
     const fl = $('#destello');
     if (!saltado) { fl.classList.add('on'); await espera(650); }
     cambiaLugar('madrid'); camModo = 'reposo';
-    txtA.textContent = 'MADRID · NOCHEBUENA'; txt.innerHTML = '…y viaja hasta<br><em>Madrid</em>';
+    txtA.textContent = 'ESPAÑA · NOCHEBUENA'; txt.innerHTML = '…cruza el Mediterráneo<br>hasta <em>Madrid</em>';
     fl.classList.remove('on');
     if (!saltado) { await esperaO(espera(700)); await esperaO(vuela($('#sobre-sale'), 5600)); }
     if (vuelo) { vuelo.el.classList.remove('visible'); vuelo = null; }
     camModo = 'reposo';
     if (!saltado) {
-      txtA.textContent = 'CARABANCHEL'; txt.innerHTML = 'Ha llegado a la<br><em>Parroquia de Santa Casilda</em>';
+      txtA.textContent = 'CARABANCHEL'; txt.innerHTML = 'Ha llegado a la<br><em>Parroquia del Cristo de la Paz</em>';
       await esperaO(espera(2800));
     }
     bS.hidden = true;
@@ -438,7 +440,7 @@
     ir('s-inicio');
   } else {
     $('#llega-para').textContent = R.generica ? 'Amigo, amiga' : R.para;
-    $('#llega-de').textContent = R.generica ? 'Desde la Parroquia de Santa Casilda te la enviamos a ti.' : 'Te la envía ' + R.de + ' desde Greccio.';
+    $('#llega-de').textContent = R.generica ? 'Desde la Parroquia del Cristo de la Paz te la enviamos a ti.' : 'Te la envía ' + R.de + ' desde Greccio.';
     document.title = (R.generica ? 'Tienes una carta desde Greccio' : R.para + ', tienes una carta desde Greccio');
     if (R.generica) {
       $('#llega-foto').hidden = false; $('#llega-ante').textContent = 'DE GRECCIO A CARABANCHEL';

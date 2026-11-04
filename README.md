@@ -1,31 +1,34 @@
 # Greccio: un Belén para ti · Navidad 2026
 
-Felicitación de Navidad interactiva de la **Parroquia de Santa Casilda** (Carabanchel, Madrid), hermana de «Una buena noticia para ti». Esta vez la carta sale de **Greccio**, donde San Francisco de Asís hizo el primer Belén en la Nochebuena de 1223, y llega a Santa Casilda.
+Felicitación de Navidad interactiva de la **Parroquia del Cristo de la Paz** (Franciscanos · C/ Portalegre, 8 · Carabanchel, Madrid), hermana de «Una buena noticia para ti». La carta sale de **Greccio**, donde San Francisco de Asís hizo el primer Belén en la Nochebuena de 1223, cruza el Mediterráneo y llega a la parroquia.
 
 Web: https://fjpereirag.github.io/greccio/
 
 ## Cómo funciona
 
 1. Se comparte el enlace. La portada, con el botón «Recibir la carta», pone en marcha la música.
-2. La carta sale de Greccio sobre el mapa 3D de Umbría y el valle de Rieti, da el salto y llega en 3D a Madrid, a Carabanchel (botón «Saltar» para ir directo).
-3. Se rompe el lacre y se abre el carrusel con los frescos de Giotto. Cada frase aparece palabra a palabra.
+2. La carta sale de Greccio sobre el mapa 3D de Italia, da el salto a España y llega a Madrid, a Carabanchel (botón «Saltar» para ir directo).
+3. Se rompe el lacre (la Tau franciscana) y se abre el carrusel con los frescos de Giotto. Cada frase aparece palabra a palabra mientras la lee la voz de Álvaro.
 4. Al final, «Feliz Navidad · Te esperamos» y el botón **Reenviar por WhatsApp**.
 
-El texto de la carta está en `app.js`, en la lista `CARTA_BELEN`. No lleva voz grabada: las palabras aparecen a su ritmo. Si más adelante se graban voces, basta con poner la ruta del mp3 en el campo `v` de cada frase.
+El texto de la carta está en `app.js`, en la lista `CARTA_BELEN`.
 
-## Imágenes que faltan (frescos de Giotto, Basílica superior de Asís, dominio público)
+## La voz de Álvaro
 
-Sustituye estos archivos de `img/` por los frescos, con el mismo nombre:
+Las voces se generan con `voz_greccio.py` (edge-tts, voz es-ES-AlvaroNeural) y se guardan en `audio/greccio_00.mp3` … `greccio_14.mp3`. Para crearlas: `pip install edge-tts` y `python voz_greccio.py` desde esta carpeta. Ya están incluidas. Si falta alguna, la web funciona igual: las palabras aparecen a su ritmo, sin voz.
 
-| Archivo | Fresco |
+## Imágenes
+
+| Archivo | Imagen |
 |---|---|
-| `giotto-greccio.jpg` | El pesebre de Greccio (Institución del Belén) |
-| `giotto-renuncia.jpg` | La renuncia a los bienes |
-| `giotto-manto.jpg` | San Francisco da su manto a un caballero pobre |
-| `giotto-sandamian.jpg` | San Francisco ora ante el crucifijo de San Damián |
-| `giotto-pajaros.jpg` | La predicación a los pájaros |
+| `img/giotto-greccio.jpg` | Giotto, El pesebre de Greccio |
+| `img/giotto-renuncia.jpg` | Giotto, La renuncia a los bienes |
+| `img/giotto-manto.jpg` | Giotto, San Francisco da su manto a un caballero pobre |
+| `img/giotto-sandamian.jpg` | Giotto, San Francisco ora ante el crucifijo de San Damián |
+| `img/giotto-pajaros.jpg` | Giotto, La predicación a los pájaros |
+| `img/parroquia.jpg` | Foto de la Parroquia del Cristo de la Paz (pantalla final) |
 
-Mejor en vertical o con el motivo centrado (la tarjeta recorta a 9:16). En `app.js`, el campo `b` de cada frase marca dónde cae el brillo (porcentajes x, y).
+Los frescos están recortados a 9:16 para las tarjetas.
 
 ## Cómo publicarla
 
@@ -58,8 +61,10 @@ Si usas otro nombre de repositorio, cambia `og:image` y `og:url` en `index.html`
 |---|---|
 | `index.html`, `estilo.css`, `app.js` | La web |
 | `vendor/three.min.js` | Three.js (licencia MIT) |
-| `assets/terreno-greccio.jpg`, `assets/altura-greccio.js` | Relieve ilustrado de Umbría y el valle de Rieti (Asís, Spoleto, Greccio, Rieti, Roma) |
-| `assets/terreno-madrid.jpg`, `assets/altura-madrid.js` | Relieve de Madrid, donde llega la carta |
+| `assets/terreno-italia.jpg`, `assets/altura-italia.js` | Relieve ilustrado de Italia (Asís, Greccio, Roma…), donde sale la carta |
+| `assets/terreno-espana.jpg`, `assets/altura-espana.js` | Relieve ilustrado de la península ibérica, donde llega la carta a Madrid |
+| `voz_greccio.py` | Genera la voz de Álvaro |
 | `img/` | Frescos de Giotto y foto de la parroquia |
+| Costas y fronteras | Natural Earth (dominio público) |
 | `audio/musica.mp3` | «Noche de paz» (dominio público), en bucle |
 | `og.jpg` | Vista previa al compartir |
