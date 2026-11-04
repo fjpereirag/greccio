@@ -27,8 +27,9 @@ Las voces se generan con `voz_greccio.py` (edge-tts, voz es-ES-AlvaroNeural) y s
 | `img/giotto-sandamian.jpg` | Giotto, San Francisco ora ante el crucifijo de San Damián |
 | `img/giotto-pajaros.jpg` | Giotto, La predicación a los pájaros |
 | `img/parroquia.jpg` | Foto de la Parroquia del Cristo de la Paz (pantalla final) |
+| `img/felicitacion-2026.jpg` | Felicitación «¡Feliz Navidad 2026!», última tarjeta de la carta |
 
-Los frescos están recortados a 9:16 para las tarjetas.
+Los frescos están recortados a 9:16 para las tarjetas y llevan un pie con su título («Giotto · … · Asís»), definido en `app.js` (lista `PIE`).
 
 ## Cómo publicarla
 

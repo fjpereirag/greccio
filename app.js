@@ -147,8 +147,17 @@
     { v: 'audio/greccio_07.mp3', t: 'El mismo Jesús que nació en Belén le había hablado desde la cruz de San Damián.', img: 'img/giotto-sandamian.jpg', b: ['55%', '40%'], cls: 'fuerte' },
     { v: 'audio/greccio_08.mp3', t: 'Y Francisco salió a anunciarlo a todos, hasta a los pájaros del camino.', img: 'img/giotto-pajaros.jpg', b: ['40%', '45%'] },
     { v: 'audio/greccio_09.mp3', t: '«El Señor te dé la paz.»', cls: 'cita' },
-    { v: 'audio/greccio_10.mp3', t: 'Esta Navidad, haz en tu casa un pequeño Greccio: deja que el Niño de Belén encuentre sitio en ella.' }
+    { v: 'audio/greccio_10.mp3', t: 'Esta Navidad, haz en tu casa un pequeño Greccio: deja que el Niño de Belén encuentre sitio en ella.', img: 'img/felicitacion-2026.jpg', b: ['50%', '62%'] }
   ];
+  // pie de cada imagen: los frescos son de Giotto (Basílica superior de San Francisco, Asís)
+  const PIE = {
+    'img/giotto-greccio.jpg': 'Giotto · El pesebre de Greccio · Asís',
+    'img/giotto-renuncia.jpg': 'Giotto · La renuncia a los bienes · Asís',
+    'img/giotto-manto.jpg': 'Giotto · El manto al caballero pobre · Asís',
+    'img/giotto-sandamian.jpg': 'Giotto · Ante el crucifijo de San Damián · Asís',
+    'img/giotto-pajaros.jpg': 'Giotto · La predicación a los pájaros · Asís'
+  };
+  const SIN_MOVIMIENTO = ['img/felicitacion-2026.jpg'];
   function cambiaImagen(src, b) {
     const im = $('#carta-img'), fig = $('.carta-imagen');
     im.style.opacity = 0;
@@ -192,7 +201,7 @@
     const anillo = $('#car-anillo'), puntos = $('#car-puntos'); anillo.innerHTML = ''; puntos.innerHTML = '';
     tarjetas = imgs.map((x) => {
       const t = document.createElement('div'); t.className = 'tarjeta'; t.style.setProperty('--bx', x.b[0]); t.style.setProperty('--by', x.b[1]);
-      t.innerHTML = `<img src="${x.img}" alt=""><div class="luz"></div><div class="brillo-paso"></div><div class="sombra"></div><div class="marco"></div>`;
+      t.innerHTML = `<img src="${x.img}" alt="${PIE[x.img] || '¡Feliz Navidad!'}"${SIN_MOVIMIENTO.includes(x.img) ? ' class="quieta"' : ''}><div class="luz"></div><div class="brillo-paso"></div><div class="sombra"></div><div class="marco"></div>${PIE[x.img] ? `<p class="pie-fresco">${PIE[x.img]}</p>` : ''}`;
       anillo.appendChild(t); puntos.appendChild(document.createElement('i')); t.dataset.img = x.img; return t;
     });
     posCar = posObjetivo = 0;
@@ -247,7 +256,7 @@
     arrancaMusica();
     const msg = MENSAJES.find((x) => x.id === R.m) || MENSAJES[0];
     const esc = ESCENAS.find((x) => x.id === R.e) || ESCENAS[0];
-    $('#carta-img').src = esc.img;
+    $('#carta-img').src = esc.img; $('#carta-pie').textContent = PIE[esc.img] || '';
     const fig = $('.carta-imagen'); fig.style.setProperty('--bx', esc.brillo[0]); fig.style.setProperty('--by', esc.brillo[1]);
     $('#carta-para').textContent = R.generica ? 'Querido amigo, querida amiga' : R.para; $('#carta-de').textContent = R.de;
     $('#carta-mensaje').textContent = msg.texto; $('#carta-nota').textContent = R.nota ? '«' + R.nota + '»' : '';
